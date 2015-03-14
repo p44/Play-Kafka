@@ -32,6 +32,7 @@ object TickConsumer {
   // Consumer actor
   case object Consume
   case object Shutdown
+  case object Test
   val propsTickConsumerActor = Props[TickConsumerActor]
 
   // To broadcast what is consumed from kafka out to web clients
@@ -49,6 +50,7 @@ class TickConsumerActor extends Actor with ActorLogging {
 
   /** */
   def receive = {
+    case TickConsumer.Test => log.info("TickConsumer.Test!")
     case TickConsumer.Consume => {
       log.info("TickConsumerActor consuming...")
       val topicStreamMap = connector.createMessageStreams(Map(TickProducer.TOPIC -> 1))
