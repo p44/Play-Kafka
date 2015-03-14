@@ -28,30 +28,30 @@
                     });
                 };
 
-//                $scope.loadDefaults = function()  {
-//                    var defTick = JSON.parse('{"ts":0}');
-//                    $scope.tick_feed_msgs = [defTick, defTick, defTick, defTick, defTick, defTick, defTick, defTick, defTick, defTick];
-//                };
-//
-//                /** handle incoming delivery feed messages: add to messages array */
-//                $scope.addTickFeedMsg = function (msg) {
-//                    var msgobj = JSON.parse(msg.data);
-//                    console.log('Recieved TickFeedMsg' + msg.data);
-//                    $scope.$apply(function () {
-//                        $scope.tick_feed_msgs.pop(); // take off last
-//                        $scope.tick_feed_msgs.unshift(msgobj); // add to first index of the array
-//
-//                    });
-//                };
-//
-//                /** start listening to the delivery feed for the ticks from kafka */
-//                $scope.listen = function () {
-//                    $scope.delivery_feed = new EventSource("/feed/tick");
-//                    $scope.delivery_feed.addEventListener("message", $scope.addTickFeedMsg, false);
-//                };
-//
-//                $scope.loadDefaults(); // on page load fetch the latest 10 sightings
-//                $scope.listen(); // establish event source for sightings feed
+                $scope.loadDefaults = function()  {
+                    var defTick = JSON.parse('{"ts":0}');
+                    $scope.tick_feed_msgs = [defTick, defTick, defTick, defTick, defTick, defTick, defTick, defTick, defTick, defTick];
+                };
+
+                /** handle incoming delivery feed messages: add to messages array */
+                $scope.addTickFeedMsg = function (msg) {
+                    var msgobj = JSON.parse(msg.data);
+                    console.log('Recieved TickFeedMsg' + msg.data);
+                    $scope.$apply(function () {
+                        $scope.tick_feed_msgs.pop(); // take off last
+                        $scope.tick_feed_msgs.unshift(msgobj); // add to first index of the array
+
+                    });
+                };
+
+                /** start listening to the delivery feed for the ticks from kafka */
+                $scope.listen = function () {
+                    $scope.delivery_feed = new EventSource("/feed/tick");
+                    $scope.delivery_feed.addEventListener("message", $scope.addTickFeedMsg, false);
+                };
+
+                $scope.loadDefaults(); // on page load fetch the latest 10 sightings
+                $scope.listen(); // establish event source for sightings feed
 
             }]);
 
