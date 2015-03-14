@@ -11,6 +11,7 @@
                 $scope.result_data = $scope.result_data_none;
 
                 $scope.displayErrorResult = function (data, status) {
+                    $scope.result_data = data;
                     $scope.home_output = 'Error ' + status + '.  ' + $scope.result_data.msg;
                 };
 
