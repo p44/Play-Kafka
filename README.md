@@ -9,8 +9,8 @@ This example uses
 * Scala 2.11.1
 * Playframework 2.3.8
 * Kafka 2.11_0.8.2.1
-* Twitter Bootstrap 3
-* AngularJs 1.1
+* Bootstrap 3.3.2
+* AngularJs 1.2.18
 
 Kafka Settings
 --------------
