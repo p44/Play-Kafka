@@ -7,6 +7,9 @@ import kafka.producer.{KeyedMessage, ProducerConfig, Producer}
 import play.api.Logger
 import play.api.libs.json.Json
 
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+
 /**
  * Produces messages to kafka topic defined by config "producer.topic.name.tick"
  */
@@ -32,7 +35,7 @@ object TickProducer {
    * Converts to json and calls produce(message: String)
    * @param tick
    */
-  def produce(tick: Tick): Unit = {
+  def produce(tick: Tick): Future[Boolean] = {
     val message = Json.stringify(Json.toJson(tick))
     produce(message)
   }
@@ -41,13 +44,29 @@ object TickProducer {
    *
    * @param message assumes verified json
    */
-  def produce(message: String): Unit = {
+  def produce(message: String): Future[Boolean] = {
     Logger.debug("producing " + message)
     val km: KeyedMessage[AnyRef, AnyRef] = new KeyedMessage(TOPIC, message.getBytes("UTF8"))
-    try {
-      PRODUCER.send(km)
-    } catch {
-      case e: Exception => Logger.error("TickProducer - Failed to send " + message, e)
+    send(message, km)
+  }
+
+  /**
+   *
+   * @param message
+   * @param km
+   * @return
+   */
+  def send(message: String, km: KeyedMessage[AnyRef, AnyRef]): Future[Boolean] = {
+    Future {
+      try {
+        PRODUCER.send(km)
+        true
+      } catch {
+        case t: Throwable => {
+          Logger.error("Failed to send " + message, t)
+          false
+        }
+      }
     }
   }
 
