@@ -12,6 +12,21 @@ This example uses
 * Bootstrap 3.3.2
 * AngularJs 1.2.18
 
+About
+--------------
+
+What tha app does.  
+
+* Click a button to PUT action that captures the current server timestamp
+* The timestamp is captured in a json block that is produced to a kafka topic
+* The json is consumed from the kafka topic and broadcasted by iteratee chanel
+* The UI displays a feed of consumed timestamps from the kafka topic
+
+Screenshot
+
+![Architecture](./about/playkafka-screenshot.png)
+
+
 Kafka Settings
 --------------
 This application depends upon a running instance of kafka
