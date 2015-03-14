@@ -44,6 +44,8 @@ Then create the topic that you set in the config file.  By default it is "tick"
 
 * bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic tick
 
+![Architecture](./about/kafka-tick.png)
+
 License
 --------------
 This application is provided under the Apache 2 License
