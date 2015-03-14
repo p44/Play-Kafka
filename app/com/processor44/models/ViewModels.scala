@@ -14,4 +14,6 @@ object ViewModels {
   lazy val MSG_SUCCESS_JSON = Json.prettyPrint(Json.toJson[Msg](MSG_SUCCESS))
   lazy val MSG_BAD_JSON: Msg = Msg("Could not resolve json for Tick.  Check Content-Type and json format.")
   lazy val MSG_BAD_JSON_JSON = Json.prettyPrint(Json.toJson[Msg](MSG_BAD_JSON))
+  lazy val MSG_ERROR: Msg = Msg("An error occured")
+  lazy val MSG_ERROR_JSON = Json.prettyPrint(Json.toJson[Msg](MSG_ERROR))
 }
