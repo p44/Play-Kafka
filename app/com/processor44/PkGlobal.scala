@@ -21,16 +21,16 @@ object PkGlobal {
     val testA = Akka.system.actorSelection(pathTickConsumer)
     testA ! TickConsumer.Test
 
-    // a ! TickConsumer.Consume
+    a ! TickConsumer.Consume
   }
 
   def onStop(): Unit = {
     Logger.debug("PkGlobal.onStop")
     val a = Akka.system.actorSelection(pathTickConsumer)
     a ! TickConsumer.Test
-    //a ! TickConsumer.Shutdown
+    a ! TickConsumer.Shutdown
     Akka.system.shutdown()
-    //Akka.system.awaitTermination()
+    Akka.system.awaitTermination()
   }
 
 
