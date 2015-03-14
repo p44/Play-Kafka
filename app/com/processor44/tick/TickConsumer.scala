@@ -3,9 +3,8 @@ package com.processor44.tick
 import akka.actor.{Props, ActorLogging, Actor}
 import com.typesafe.config.ConfigFactory
 import java.util.Properties
-import play.api.Logger
-
 import kafka.consumer.{ConsumerConnector, Consumer, ConsumerConfig, KafkaStream}
+import play.api.Logger
 import play.api.libs.iteratee.Concurrent
 import play.api.libs.json.{Json, JsValue}
 
