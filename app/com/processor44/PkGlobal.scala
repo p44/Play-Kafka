@@ -11,21 +11,26 @@ import play.api.Play.current
  */
 object PkGlobal {
 
-  var pathTickConsumer = "akka://application/user/TickConsumer"
+  var pathTickConsumer = "/user/TickConsumer"
 
   def onStart(): Unit = {
     Logger.debug("PkGlobal.onStart")
     val a = Akka.system.actorOf(TickConsumer.propsTickConsumerActor, "TickConsumer")
     //println(a.path)
-    a ! TickConsumer.Consume
+
+    val testA = Akka.system.actorSelection(pathTickConsumer)
+    testA ! TickConsumer.Test
+
+    // a ! TickConsumer.Consume
   }
 
   def onStop(): Unit = {
     Logger.debug("PkGlobal.onStop")
     val a = Akka.system.actorSelection(pathTickConsumer)
-    a ! TickConsumer.Shutdown
+    a ! TickConsumer.Test
+    //a ! TickConsumer.Shutdown
     Akka.system.shutdown()
-    Akka.system.awaitTermination()
+    //Akka.system.awaitTermination()
   }
 
 
