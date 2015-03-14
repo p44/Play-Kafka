@@ -18,36 +18,17 @@ object Application extends Controller {
   }
 
   /**
-   *
-   * @return
-   */
-  def postTick = Action.async { request =>
-    Future {
-      val ojsv = request.body.asJson
-      val oTick = ojsv.flatMap(jsv => jsv.validate[Tick].asOpt)
-      Logger.debug("postTick " + oTick)
-      oTick match {
-        case None => BadRequest(ViewModels.MSG_BAD_JSON_JSON)
-        case Some(tick) => {
-          TickProducer.produce(Json.stringify(ojsv.get)) // Send it to Kafka
-          Ok(ViewModels.MSG_SUCCESS_JSON)
-        }
-      }
-    }
-  }
-
-  /**
    * Uses server timestamp to create a tick obj then produces it to kafka
    * @return
    */
   def putGenTick = Action.async { request =>
     Future {
-      TickProducer.produce(Tick(System.currentTimeMillis()))
+      TickProducer.produce(Tick(System.currentTimeMillis())) // Send it to Kafka
       Ok(ViewModels.MSG_SUCCESS_JSON)
     }
   }
 
-  // Tick Feed
+  // Tick Feed - The Tick consumer will put to the tick chanel json pulled from kafka
 
   /** Enumeratee for detecting disconnect of the stream */
   def connDeathLog(addr: String): Enumeratee[JsValue, JsValue] = {
