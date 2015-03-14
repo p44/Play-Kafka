@@ -1,4 +1,4 @@
-Play-Kafka (In Progress)
+Play-Kafka
 =========
 Playframework -  Simple Kafka Example
 **[Apache Kafka Home](http://kafka.apache.org/)**
@@ -15,12 +15,13 @@ This example uses
 About
 --------------
 
-What tha app does.  
+What the application does:
 
-* Click a button to PUT action that captures the current server timestamp
-* The timestamp is captured in a json block that is produced to a kafka topic
-* The json is consumed from the kafka topic and broadcasted by iteratee chanel
-* The UI displays a feed of consumed timestamps from the kafka topic
+* A button (PUT /tick) captures the current server timestamp
+* The timestamp is formatted to a json block 
+* The json is produced to a kafka topic
+* The json is consumed from the kafka topic and broadcast to iteratee chanel
+* The UI displays a feed of consumed timestamps from the kafka topic (GET /feed/tick)
 
 Screenshot
 
