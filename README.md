@@ -15,9 +15,9 @@ This example uses
 About
 --------------
 
-What tha app does.  
+What the application does: 
 
-* Click a button to PUT action that captures the current server timestamp
+* A button to PUT action that captures the current server timestamp
 * The timestamp is captured in a json block that is produced to a kafka topic
 * The json is consumed from the kafka topic and broadcasted by iteratee chanel
 * The UI displays a feed of consumed timestamps from the kafka topic
