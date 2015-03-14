@@ -14,7 +14,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 object Application extends Controller {
 
   def index = Action {
-    Ok(views.html.index("Your new application is ready."))
+    Ok(views.html.index())
   }
 
   /**
@@ -33,6 +33,17 @@ object Application extends Controller {
           Ok(ViewModels.MSG_SUCCESS_JSON)
         }
       }
+    }
+  }
+
+  /**
+   * Uses server timestamp to create a tick obj then produces it to kafka
+   * @return
+   */
+  def putGenTick = Action.async { request =>
+    Future {
+      TickProducer.produce(Tick(System.currentTimeMillis()))
+      Ok(ViewModels.MSG_SUCCESS_JSON)
     }
   }
 

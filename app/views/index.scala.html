@@ -1,7 +1,54 @@
-@(message: String)
+@()<!DOCTYPE html>
 
-@main("Welcome to Play") {
+<html ng-app="playkafka">
+<head>
+    <title>Play Kafka</title>
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" media="screen" href='@routes.Assets.at("stylesheets/main.css")'>
+</head>
 
-    @play20.welcome(message)
+<body>
+<!-- Fixed navbar -->
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+            </button>
+            <a class="navbar-brand" href="#">Play Kafka</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="#">Home</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div>
+</nav>
 
-}
+<div class="container">
+    <div data-ng-view></div>
+</div>
+
+
+<footer class="footer" >
+    <div class="container">
+        <p class="text-muted"><small>Apache 2 license - github.com/p44 </small></p>
+    </div>
+</footer>
+
+
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.18/angular-route.min.js"></script>
+<script src='@routes.Assets.at("javascripts/app.js")'></script>
+<script src='@routes.Assets.at("javascripts/services.js")'></script>
+<script src='@routes.Assets.at("javascripts/controllers.js")'></script>
+</body>
+</html>
+
+
+
