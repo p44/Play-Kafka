@@ -1,17 +1,11 @@
-<!-- Begin page content -->
-
-
 <div class="page-header">
     <h1>Tick</h1>
-
     <p>To Kafka and Back</p>
 </div>
 
-<!-- p class="lead">Lead this.</p -->
-
 <div class="row">
     <div class="col-md-4">
-        <h4>Actions</h4>
+        <h4>Actions <span class="glyphicon glyphicon-flash text-primary"></span></h4>
 
         <div>
             <p>
@@ -19,12 +13,23 @@
             </p>
         </div>
     </div>
-    <div class="col-md-8">
-        <h4>Results</h4>
+    <div class="col-md-4">
+        <h4>Results <span class="glyphicon glyphicon-check text-primary"></span></h4>
 
         <div>
             <p>{{home_output}}</p>
         </div>
+    </div>
+    <div class="col-md-4">
+        <h4>Feed <span class="glyphicon glyphicon-eye-open text-primary"></span></h4>
+
+        <p>Ticks appear below...</p>
+        <ul>
+            <!-- breed: String, count: Int, description: String, timestamp: Long, comments -->
+            <div class="ticks" ng-repeat="tick in tick_feed_msgs track by $index | limitTo:-10">
+                <li><span class="text-primary">{{tick.ts}}</span></li>
+            </div>
+        </ul>
     </div>
 </div>
 
