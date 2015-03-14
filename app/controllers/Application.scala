@@ -22,10 +22,14 @@ object Application extends Controller {
    * @return
    */
   def putGenTick = Action.async { request =>
-    Future {
-      TickProducer.produce(Tick(System.currentTimeMillis())) // Send it to Kafka
-      Ok(ViewModels.MSG_SUCCESS_JSON)
+    // Send it to Kafka
+    TickProducer.produce(Tick(System.currentTimeMillis())).map { r =>
+      r match {
+        case false => InternalServerError(ViewModels.MSG_ERROR_JSON)
+        case true => Ok(ViewModels.MSG_SUCCESS_JSON)
+      }
     }
+
   }
 
   // Tick Feed - The Tick consumer will put to the tick chanel json pulled from kafka
