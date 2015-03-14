@@ -1,7 +1,6 @@
 package com.processor44.tick
 
 import akka.actor.{Props, ActorLogging, Actor}
-import com.processor44.models.Tick
 import com.typesafe.config.ConfigFactory
 import java.util.Properties
 import play.api.Logger
@@ -53,18 +52,19 @@ class TickConsumerActor extends Actor with ActorLogging {
     case TickConsumer.Consume => {
       log.info("TickConsumerActor consuming...")
       val topicStreamMap = connector.createMessageStreams(Map(TickProducer.TOPIC -> 1))
-      val kStream: KafkaStream[Array[Byte], Array[Byte]] = topicStreamMap.get(TickProducer.TOPIC).get(0)
-      // stream away...
-      for (mAndM <- kStream) {
-        try {
-          val m = new String(mAndM.message, "UTF-8")
-          log.debug("consumed " + m + " at offset " + mAndM.offset)
-
-          // broadcast it
-          val jsv = Json.parse(m)
-          TickConsumer.tickChannel.push(jsv)
-        } catch {
-          case t: Throwable => Logger.error("TickConsumerActor ERROR " + t)
+      topicStreamMap.get(TickProducer.TOPIC) match {
+        case None => log.error("TickConsumerActor NONE for Stream.  Can't Consume.")
+        case Some(streamList) => {
+          val kStream: KafkaStream[Array[Byte], Array[Byte]] = streamList(0)
+          for (mAndM <- kStream) { // stream away...
+            try {
+              val m = new String(mAndM.message, "UTF-8") // back to string json
+              log.debug("consumed " + m + " at offset " + mAndM.offset)
+              TickConsumer.tickChannel.push(Json.parse(m)) // broadcast it
+            } catch {
+              case t: Throwable => Logger.error("TickConsumerActor ERROR ", t)
+            }
+          }
         }
       }
     }
