@@ -2,9 +2,9 @@ package com.processor44.tick
 
 import com.processor44.models.Tick
 import com.typesafe.config.ConfigFactory
-import play.api.Logger
 import java.util.Properties
 import kafka.producer.{KeyedMessage, ProducerConfig, Producer}
+import play.api.Logger
 import play.api.libs.json.Json
 
 /**
@@ -37,7 +37,7 @@ object TickProducer {
     produce(message)
   }
   /**
-   * Calls PRODUCER.send(new KeyedMessage(TOPIC, message.getBytes("UTF8")), null)
+   * Calls PRODUCER.send(new KeyedMessage(TOPIC, message.getBytes("UTF8")))
    *
    * @param message assumes verified json
    */
