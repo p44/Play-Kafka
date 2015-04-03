@@ -18,6 +18,8 @@ object TickProducer {
   lazy val CONF = ConfigFactory.load
   lazy val TOPIC = CONF.getString("kafka.topic.name.tick")
   lazy val BROKER_LIST = CONF.getString("producer.metadata.broker.list")
+  lazy val BROKER_LIST_PARSED: List[String] = parseBrokersToString
+  lazy val BROKER_LIST_PARSED_HP: List[(String, Int)] = parseBrokersToHostPort
 
 
   // http://kafka.apache.org/documentation.html#producerconfigs
@@ -31,21 +33,48 @@ object TickProducer {
 
   val PRODUCER = new Producer[AnyRef, AnyRef](new ProducerConfig(props))
 
+  def parseBrokersToString: List[String] = {
+    val all = BROKER_LIST.split(",")
+    all.map(_.trim).toList
+  }
+
+  def parseBrokersToHostPort: List[(String, Int)] = {
+    val r = BROKER_LIST_PARSED.map { s =>
+      val hp = s.split(":")
+      (hp(0), hp(1).toInt)
+    }
+    r.toList
+  }
+
   /**
    * Converts to json and calls produce(message: String)
+   *
    * @param tick
    */
   def produce(tick: Tick): Future[Boolean] = {
     val message = Json.stringify(Json.toJson(tick))
-    produce(message)
+    produce(tick.ts.toString, message)
   }
   /**
    * Calls PRODUCER.send(new KeyedMessage(TOPIC, message.getBytes("UTF8")))
    *
+   * @param key as String
    * @param message assumes verified json
    */
+  def produce(key: String, message: String): Future[Boolean] = {
+    if (Logger.isDebugEnabled) Logger.debug("producing " + key + " " + message)
+    val km: KeyedMessage[AnyRef, AnyRef] = new KeyedMessage(TOPIC, key.getBytes("UTF8"), message.getBytes("UTF8"))
+    send(message, km)
+  }
+
+  /**
+   * Produce just message with no key.  Key will be null upon consume
+   *
+   * @param message
+   * @return
+   */
   def produce(message: String): Future[Boolean] = {
-    Logger.debug("producing " + message)
+    if (Logger.isDebugEnabled) Logger.debug("producing " + message)
     val km: KeyedMessage[AnyRef, AnyRef] = new KeyedMessage(TOPIC, message.getBytes("UTF8"))
     send(message, km)
   }
