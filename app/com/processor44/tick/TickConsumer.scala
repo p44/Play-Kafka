@@ -3,7 +3,8 @@ package com.processor44.tick
 import akka.actor.{Props, ActorLogging, Actor}
 import com.typesafe.config.ConfigFactory
 import java.util.Properties
-import kafka.consumer.{ConsumerConnector, Consumer, ConsumerConfig, KafkaStream}
+import kafka.consumer._
+import kafka.message.MessageAndMetadata
 import play.api.Logger
 import play.api.libs.iteratee.Concurrent
 import play.api.libs.json.{Json, JsValue}
@@ -35,6 +36,7 @@ object TickConsumer {
   val propsTickConsumerActor = Props[TickConsumerActor]
 
   // To broadcast what is consumed from kafka out to web clients
+  // tickOut is Enumerator[JsValue], tickChannel is Concurrent.Channel[JsValue]
   val (tickOut, tickChannel) = Concurrent.broadcast[JsValue]
 
 }
@@ -49,29 +51,61 @@ class TickConsumerActor extends Actor with ActorLogging {
 
   /** */
   def receive = {
-    case TickConsumer.Test => log.info("TickConsumer.Test!")
+    case TickConsumer.Test => if (log.isInfoEnabled) log.info("TickConsumer.Test!")
     case TickConsumer.Consume => {
-      log.info("TickConsumerActor consuming...")
+      if (log.isInfoEnabled) log.info("TickConsumerActor consuming...")
       val topicStreamMap = connector.createMessageStreams(Map(TickProducer.TOPIC -> 1))
       topicStreamMap.get(TickProducer.TOPIC) match {
         case None => log.error("TickConsumerActor NONE for Stream.  Can't Consume.")
         case Some(streamList) => {
           val kStream: KafkaStream[Array[Byte], Array[Byte]] = streamList(0)
-          for (mAndM <- kStream) { // stream away...
-            try {
-              val m = new String(mAndM.message, "UTF-8") // back to string json
-              log.debug("consumed " + m + " at offset " + mAndM.offset)
-              TickConsumer.tickChannel.push(Json.parse(m)) // broadcast it
-            } catch {
-              case t: Throwable => Logger.error("TickConsumerActor ERROR ", t)
-            }
-          }
+          iterateStream(kStream)
         }
       }
     }
     case TickConsumer.Shutdown => {
-      log.info("TickConsumerActor shutting down...")
+      if (log.isInfoEnabled) log.info("TickConsumerActor shutting down...")
       connector.shutdown
     }
   }
+
+  /**
+   * while (iter.hasNext()) ... consumeAndPublishOne for each
+   * @param kStream
+   */
+  def iterateStream(kStream: KafkaStream[Array[Byte], Array[Byte]]): Unit = {
+    val iter: ConsumerIterator[Array[Byte], Array[Byte]] = kStream.iterator()
+    while (iter.hasNext()) {
+      consumeAndPublishOne(iter.next())
+    }
+  }
+
+  /**
+   *
+   * @param mam
+   * @return
+   */
+  def consumeAndPublishOne(mam: MessageAndMetadata[Array[Byte], Array[Byte]]): Boolean = {
+    try {
+      val k = getKeyAsString(mam, "UTF-8")
+      val m = new String(mam.message, "UTF-8") // back to string json
+      if (log.isDebugEnabled) log.debug("consumed [" + k + " " +  m + "] at partition " + mam.partition+ ", at offset " + mam.offset)
+      TickConsumer.tickChannel.push(Json.parse(m)) // broadcast it
+      true
+    } catch {
+      case t: Throwable => {
+        Logger.error("consumeAndPublishOne ERROR ", t)
+        false
+      }
+    }
+  }
+
+  /**
+   * checks mam.key for null, default when empty is ""
+   */
+  def getKeyAsString(mam: MessageAndMetadata[Array[Byte], Array[Byte]], charsetName: String = "UTF-8"): String = {
+    if (mam.key == null) ""
+    else (new String(mam.key, charsetName))
+  }
+
 }
