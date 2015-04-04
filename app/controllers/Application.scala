@@ -1,7 +1,7 @@
 package controllers
 
 import com.processor44.models.{ViewModels, Msg, Tick}
-import com.processor44.tick.{TickConsumer, TickProducer}
+import com.processor44.tick.{TickSimpleConsumer, TickConsumer, TickProducer}
 import play.api._
 import play.api.libs.EventSource
 import play.api.libs.iteratee.{Concurrent, Enumeratee}
@@ -29,13 +29,21 @@ object Application extends Controller {
         case true => Ok(ViewModels.MSG_SUCCESS_JSON)
       }
     }
+  }
 
+  def getLastOffset = Action.async { request =>
+    Future {
+      TickSimpleConsumer.getLastOffset(TickProducer.TOPIC, TickSimpleConsumer.PARTITION_DEF) match {
+        case None => InternalServerError(ViewModels.MSG_ERROR_JSON)
+        case Some(offset) => Ok(Json.prettyPrint(Json.toJson[Msg](Msg("Last Offset: " + offset))))
+      }
+    }
   }
 
   // Tick Feed - The Tick consumer will put to the tick chanel json pulled from kafka
 
   /** Enumeratee for detecting disconnect of the stream */
-  def connDeathLog(addr: String): Enumeratee[JsValue, JsValue] = {
+  def logDisconnect(addr: String): Enumeratee[JsValue, JsValue] = {
     Enumeratee.onIterateeDone { () =>
       Logger.info(addr + " - tickOut disconnected")
     }
@@ -46,7 +54,7 @@ object Application extends Controller {
     Logger.info("FEED tick - " + req.remoteAddress + " - tick connected")
     Ok.chunked(TickConsumer.tickOut
       &> Concurrent.buffer(100)
-      &> connDeathLog(req.remoteAddress)
+      &> logDisconnect(req.remoteAddress)
       &> EventSource()).as("text/event-stream")
     // &>  Compose this Enumerator with an Enumeratee. Alias for through
   }
