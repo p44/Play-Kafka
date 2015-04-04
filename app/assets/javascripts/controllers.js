@@ -29,6 +29,21 @@
                     });
                 };
 
+                // GET /tick/last_offset
+                $scope.getTickLastOffset = function () {
+                    $scope.home_output = 'Please Wait...  ';
+                    var url = '/tick/last_offset';
+                    $http({method: 'GET', url: url
+                    }).success(function (data) {
+                        $scope.result_data = data;
+                        $scope.home_output = $scope.result_data.msg;
+                    }).error(function (data, status) {
+                        console.log('GET ' + url + ' ERROR ' + status);
+                        $scope.displayErrorResult(data, status);
+                    });
+                };
+
+
                 $scope.loadDefaults = function()  {
                     var defTick = JSON.parse('{"ts":0}');
                     $scope.tick_feed_msgs = [defTick, defTick, defTick, defTick, defTick, defTick, defTick, defTick, defTick, defTick];
@@ -51,8 +66,8 @@
                     $scope.delivery_feed.addEventListener("message", $scope.addTickFeedMsg, false);
                 };
 
-                $scope.loadDefaults(); // on page load fetch the latest 10 sightings
-                $scope.listen(); // establish event source for sightings feed
+                $scope.loadDefaults(); // on page load populate a default list for the feed
+                $scope.listen(); // establish event source for ticks feed
 
             }]);
 
