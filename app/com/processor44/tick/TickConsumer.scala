@@ -87,9 +87,10 @@ class TickConsumerActor extends Actor with ActorLogging {
    */
   def consumeAndPublishOne(mam: MessageAndMetadata[Array[Byte], Array[Byte]]): Boolean = {
     try {
-      val k = getKeyAsString(mam, "UTF-8")
-      val m = new String(mam.message, "UTF-8") // back to string json
-      if (log.isDebugEnabled) log.debug("consumed [" + k + " " +  m + "] at partition " + mam.partition+ ", at offset " + mam.offset)
+      val k = getKeyAsString(mam, TickProducer.CHARSET)
+      val m = new String(mam.message, TickProducer.CHARSET) // back to string json
+      if (log.isDebugEnabled) log.debug("consumed [" + k + " " +  m + "] at partition " +
+        mam.partition+ ", at offset " + mam.offset)
       TickConsumer.tickChannel.push(Json.parse(m)) // broadcast it
       true
     } catch {
@@ -103,7 +104,7 @@ class TickConsumerActor extends Actor with ActorLogging {
   /**
    * checks mam.key for null, default when empty is ""
    */
-  def getKeyAsString(mam: MessageAndMetadata[Array[Byte], Array[Byte]], charsetName: String = "UTF-8"): String = {
+  def getKeyAsString(mam: MessageAndMetadata[Array[Byte], Array[Byte]], charsetName: String = TickProducer.CHARSET): String = {
     if (mam.key == null) ""
     else (new String(mam.key, charsetName))
   }

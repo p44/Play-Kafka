@@ -15,6 +15,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
  */
 object TickProducer {
 
+  val CHARSET = "UTF-8"
   lazy val CONF = ConfigFactory.load
   lazy val TOPIC = CONF.getString("kafka.topic.name.tick")
   lazy val BROKER_LIST = CONF.getString("producer.metadata.broker.list")
@@ -56,14 +57,15 @@ object TickProducer {
     produce(tick.ts.toString, message)
   }
   /**
-   * Calls PRODUCER.send(new KeyedMessage(TOPIC, message.getBytes("UTF8")))
+   * Calls PRODUCER.send(new KeyedMessage(TOPIC, message.getBytes(CHARSET)))
    *
    * @param key as String
    * @param message assumes verified json
    */
   def produce(key: String, message: String): Future[Boolean] = {
     if (Logger.isDebugEnabled) Logger.debug("producing " + key + " " + message)
-    val km: KeyedMessage[AnyRef, AnyRef] = new KeyedMessage(TOPIC, key.getBytes("UTF8"), message.getBytes("UTF8"))
+    val km: KeyedMessage[AnyRef, AnyRef] =
+      new KeyedMessage(TOPIC, key.getBytes(CHARSET), message.getBytes(CHARSET))
     send(message, km)
   }
 
@@ -75,7 +77,7 @@ object TickProducer {
    */
   def produce(message: String): Future[Boolean] = {
     if (Logger.isDebugEnabled) Logger.debug("producing " + message)
-    val km: KeyedMessage[AnyRef, AnyRef] = new KeyedMessage(TOPIC, message.getBytes("UTF8"))
+    val km: KeyedMessage[AnyRef, AnyRef] = new KeyedMessage(TOPIC, message.getBytes(CHARSET))
     send(message, km)
   }
 
