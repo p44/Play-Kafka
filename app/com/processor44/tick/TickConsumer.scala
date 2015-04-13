@@ -39,6 +39,12 @@ object TickConsumer {
   // tickOut is Enumerator[JsValue], tickChannel is Concurrent.Channel[JsValue]
   val (tickOut, tickChannel) = Concurrent.broadcast[JsValue]
 
+  /** Conversion function for key bytes to String with null check */
+  def getKeyAsString(key: Array[Byte], charsetName: String = TickProducer.CHARSET): String = {
+    if (key == null) ""
+    else (new String(key, charsetName))
+  }
+
 }
 
 /**
@@ -87,7 +93,7 @@ class TickConsumerActor extends Actor with ActorLogging {
    */
   def consumeAndPublishOne(mam: MessageAndMetadata[Array[Byte], Array[Byte]]): Boolean = {
     try {
-      val k = getKeyAsString(mam, TickProducer.CHARSET)
+      val k = TickConsumer.getKeyAsString(mam.key, TickProducer.CHARSET)
       val m = new String(mam.message, TickProducer.CHARSET) // back to string json
       if (log.isDebugEnabled) log.debug("consumed [" + k + " " +  m + "] at partition " +
         mam.partition+ ", at offset " + mam.offset)
@@ -99,14 +105,6 @@ class TickConsumerActor extends Actor with ActorLogging {
         false
       }
     }
-  }
-
-  /**
-   * checks mam.key for null, default when empty is ""
-   */
-  def getKeyAsString(mam: MessageAndMetadata[Array[Byte], Array[Byte]], charsetName: String = TickProducer.CHARSET): String = {
-    if (mam.key == null) ""
-    else (new String(mam.key, charsetName))
   }
 
 }
