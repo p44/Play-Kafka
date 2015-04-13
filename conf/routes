@@ -6,9 +6,11 @@
 GET     /                           controllers.Application.index
 
 # Services
-PUT     /tick                       controllers.Application.putGenTick
-GET     /feed/tick                  controllers.Application.tickFeed
-GET     /tick/last_offset           controllers.Application.getLastOffset
+PUT     /tick                           controllers.Application.putGenTick
+GET     /feed/tick                      controllers.Application.tickFeed
+GET     /tick/last_offset               controllers.Application.getLastOffset
+GET     /tick/messages/last/:count      controllers.Application.getLastMessages(count: Int)
+GET     /tick/offset/reset/back/:back   controllers.Application.getResetOffset(back: Int)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

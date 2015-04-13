@@ -40,6 +40,43 @@ object Application extends Controller {
     }
   }
 
+  def getLastMessages(count: Int) = Action.async { request =>
+    Future {
+      val r: Map[Long,(String, String)] =
+        TickSimpleConsumer.fetchLastMessages(TickProducer.TOPIC, TickSimpleConsumer.PARTITION_DEF, count)
+      r.isEmpty match {
+        case true => Ok(Json.prettyPrint(Json.toJson[Msg](Msg("Empty Results"))))
+        case false => Ok(Json.prettyPrint(Json.toJson[Msg](Msg("Last Offset: " + r.mkString(" ")))))
+      }
+    }
+  }
+
+  def getResetOffset(back: Int) = Action.async { request =>
+    Future {
+      TickSimpleConsumer.getLastOffset(TickProducer.TOPIC, TickSimpleConsumer.PARTITION_DEF) match {
+        case None => InternalServerError(ViewModels.MSG_ERROR_JSON)
+        case Some(offset) => {
+          val resetTo: Long = calcResetBack(offset, back)
+          TickSimpleConsumer.resetOffset(TickProducer.TOPIC, TickSimpleConsumer.PARTITION_DEF, resetTo) match {
+            case None => InternalServerError(ViewModels.MSG_ERROR_JSON)
+            case Some(newOffset) => {
+              if (Logger.isDebugEnabled) Logger.debug("getResetOffset last offset " + offset + " newOffset " + newOffset)
+              Ok(Json.prettyPrint(Json.toJson[Msg](Msg("Last Offset: " + offset+ " newOffset " + newOffset))))
+            }
+          }
+        }
+      }
+    }
+  }
+
+  def calcResetBack(offset: Long, back: Int): Long = {
+    val nOffset = offset - back
+    nOffset < 0 match {
+      case true => 0L
+      case false => nOffset
+    }
+  }
+
   // Tick Feed - The Tick consumer will put to the tick chanel json pulled from kafka
 
   /** Enumeratee for detecting disconnect of the stream */
